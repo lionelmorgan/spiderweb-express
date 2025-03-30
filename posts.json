@@ -1,0 +1,104 @@
+[
+  {
+    "id": "1",
+    "user": {
+      "username": "chasezets",
+      "profile": "images/6.jpg"
+    },
+    "comments": [
+      {
+        "id": "1",
+        "user": {
+          "username": "emwest",
+          "profile": "images/7.jpg"
+        },
+        "comment": "Sphinx!",
+        "created": "2 minutes ago"
+      },
+      {
+        "id": "2",
+        "user": {
+          "username": "daxfrenz",
+          "profile": "images/5.jpg"
+        },
+        "comment": "The great pyramids!",
+        "created": "5 minutes ago"
+      }
+    ],
+    "likes": 4,
+    "image": "/images/greatpyramids.jpg",
+    "description": "Vacation to the great pyramids",
+    "created": "1 sec ago"
+  },
+  {
+    "id": "2",
+    "user": {
+      "username": "millieram",
+      "profile": "images/1.jpg"
+    },
+    "comments": [
+      {
+        "id": "1",
+        "user": {
+          "username": "emwest",
+          "profile": "images/7.jpg"
+        },
+        "comment": "Hello!",
+        "created": "2 minutes ago"
+      },
+      {
+        "id": "2",
+        "user": {
+          "username": "daxfrenz",
+          "profile": "images/5.jpg"
+        },
+        "comment": "Cool!",
+        "created": "5 minutes ago"
+      }
+    ],
+    "likes": 5,
+    "image": "/images/milkyway.jpg",
+    "description": "Our milky way!!",
+    "created": "1 hr ago"
+  },
+  {
+    "id": "3",
+    "user": {
+      "username": "lionelmorgan",
+      "profile": "images/8.jpg"
+    },
+    "comments": [
+      {
+        "id": "1",
+        "user": {
+          "username": "emwest",
+          "profile": "images/7.jpg"
+        },
+        "comment": "Nice",
+        "created": "2 minutes ago"
+      },
+      {
+        "id": "2",
+        "user": {
+          "username": "daxfrenz",
+          "profile": "images/5.jpg"
+        },
+        "comment": "Wow!",
+        "created": "5 minutes ago"
+      },
+      {
+        "id": "3",
+        "user": {
+          "username": "currentUsername",
+          "profile": "currentUserProfile"
+        },
+        "comment": "scenic!",
+        "created": "just now"
+      }
+    ],
+    "likes": 7,
+    "image": "/images/auroraborealis.jpg",
+    "description": "The phenomenal aurora borealis",
+    "created": "3 hrs ago"
+  }
+]
