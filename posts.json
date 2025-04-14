@@ -100,5 +100,44 @@
     "image": "/images/auroraborealis.jpg",
     "description": "The phenomenal aurora borealis",
     "created": "3 hrs ago"
+  },
+  {
+    "id": "1744604411624",
+    "user": {},
+    "image": "/uploads/1744604411616-denverbroncos.jpg",
+    "description": "Denver Broncos",
+    "comments": [],
+    "likes": 0,
+    "created": "just now"
+  },
+  {
+    "id": "1744604566806",
+    "user": {},
+    "image": "/uploads/1744604566804-denverbroncos.jpg",
+    "description": "Denver Broncos",
+    "comments": [],
+    "likes": 0,
+    "created": "just now"
+  },
+  {
+    "id": "1744604704541",
+    "user": {},
+    "image": "/uploads/1744604704540-denverbroncos.jpg",
+    "description": "Denver Broncos",
+    "comments": [],
+    "likes": 0,
+    "created": "just now"
+  },
+  {
+    "id": "1744604910554",
+    "user": {
+      "username": "lionelmorgan",
+      "profile": "/images/8.jpg"
+    },
+    "image": "/uploads/1744604910553-denverbroncos.jpg",
+    "description": "Denver Broncos",
+    "comments": [],
+    "likes": 0,
+    "created": "just now"
   }
 ]

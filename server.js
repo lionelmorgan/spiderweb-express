@@ -1,21 +1,69 @@
 //Configure the server details
 const express = require('express');
-const fs = require('fs');
+const fs = require('fs'); //file system is fs
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
+const multer = require('multer');
 const app = express();
 const PORT = 5000;
 
+const http = require('http');
+const { Server } = require('socket.io');
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+      origin: "http://localhost:3000",
+      methods: ["GET", "POST"],
+    },
+  });
+
+const imagesPath = path.join(__dirname, '../my-app/public/images');
+
+// Ensure the images folder exists
+if (!fs.existsSync(imagesPath)) {
+    fs.mkdirSync(imagesPath, { recursive: true });
+}
+
+// Configure Multer to save to the React public/images folder
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, imagesPath); // Absolute path to save images
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+
+// Create multer instance with storage configuration
+const upload = multer({ storage: storage });
+
+// Socket.io connection
+io.on("connection", (socket) => {
+  console.log(`User Connected: ${socket.id}`);
+
+  socket.on("join_room", (data) => {
+    socket.join(data);
+    console.log(`User with ID: ${socket.id} joined room: ${data}`);
+  });
+
+  socket.on("send_message", (data) => {
+    socket.to(data.room).emit("receive_message", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User Disconnected", socket.id);
+  });
+});
 
 // Middleware to parse JSON request bodies
 app.use(bodyParser.json());
 
-// Enable CORS for requests from http://localhost:3000 only
+// Enable CORS for requests from http://localhost:3000 react app
 app.use(cors({
-    origin: 'http://localhost:3000',  // Allow requests only from this URL
+    origin: 'http://localhost:3000',  
     methods: ['GET', 'POST'],  // Allow GET and POST methods
-    allowedHeaders: ['Content-Type'],  // Allow Content-Type header for JSON
+    allowedHeaders: ['Content-Type'], 
 }));
 
 //GET endpoint located at the root of the server
@@ -36,13 +84,14 @@ app.post('/add-comment', (req, res) => {
 const postsPath = path.resolve(__dirname, '../my-app/public', 'posts.json');  // Use path.resolve correctly
 
 // Read posts from posts.json and update
-fs.readFile(postsPath, 'utf8', (err, data) => {
+//file system is fs
+fs.readFile(postsPath, 'utf8', (err, data) => { //JSON String coming into server converted using Stringify
     if (err) {
-        console.log('Error reading posts.json file:', err); // Log the error for debugging
+        console.log('Error reading posts.json file:', err); 
         return res.status(500).send({ message: 'Error reading posts.json file' });
     }
 
-        const posts = JSON.parse(data);
+        const posts = JSON.parse(data); //parse the posts data back to a JSON object since posts.json is originally JSON Objects
 
         const post = posts.find(p => p.id === postId);
         if (!post) {
@@ -57,7 +106,7 @@ fs.readFile(postsPath, 'utf8', (err, data) => {
             created: 'just now'  // Use time / date library to display actual times for your posts and comments (Refer to CIS 120 Javascript section for the Date library)
         };
 
-        post.comments.push(newComment);
+        post.comments.push(newComment); //add newComment to the post
 
         // Save the updated posts back to posts.json
         fs.writeFile(postsPath, JSON.stringify(posts, null, 2), (err) => {
@@ -70,7 +119,82 @@ fs.readFile(postsPath, 'utf8', (err, data) => {
     });
 });
 
-// Start the server
+// GET endpoint to fetch posts by username
+app.get('/user-posts/:username', (req, res) => {
+    const { username } = req.params;
+
+    const postsPath = path.resolve(__dirname, '../my-app/public', 'posts.json');
+
+    fs.readFile(postsPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading posts.json:', err);
+            return res.status(500).json({ message: 'Server error while reading posts' });
+        }
+
+        const posts = JSON.parse(data);
+        const userPosts = posts.filter(post => post.user.username === username);
+
+        res.json(userPosts);
+    });
+});
+
+// POST route for adding a new post
+app.post('/add-post', upload.single('image'), (req, res) => {
+    const { description, username, profile } = req.body;
+  
+    // Validate required fields
+    if (!req.file || !username || !description || !profile) {
+      return res.status(400).json({ message: 'Missing required fields or image.' });
+    }
+  
+    const postsPath = path.resolve(__dirname, '../my-app/public', 'posts.json');
+  
+    fs.readFile(postsPath, 'utf8', (err, data) => {
+      if (err) {
+        console.error('Error reading posts.json:', err);
+        return res.status(500).json({ message: 'Error reading posts.json' });
+      }
+  
+      let posts = [];
+      try {
+        posts = JSON.parse(data);
+      } catch (parseErr) {
+        console.error('Error parsing posts.json:', parseErr);
+      }
+  
+      const newPost = {
+        id: (posts.length + 1).toString(),
+        user: {
+          username,
+          profile
+        },
+        comments: [],
+        likes: 0,
+        image: `/images/${req.file.filename}`,
+        description,
+        created: 'just now'
+      };
+  
+      posts.push(newPost);
+  
+      fs.writeFile(postsPath, JSON.stringify(posts, null, 2), (writeErr) => {
+        if (writeErr) {
+          console.error('Error writing to posts.json:', writeErr);
+          return res.status(500).json({ message: 'Error saving post' });
+        }
+  
+        return res.status(200).json({ message: 'Post added successfully', post: newPost });
+      });
+    });
+  });
+  
+// Start the server to listen on port 5000
 app.listen(PORT, () => {
     console.log(`Express server is running on http://localhost:${PORT}`);
 });
+
+//socket.io server for Chat
+server.listen(5001, () => {
+    console.log(`Chat server is running on http://localhost:5001`);
+  });
+    
