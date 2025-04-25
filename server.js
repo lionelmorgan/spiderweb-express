@@ -138,7 +138,7 @@ app.get('/user-posts/:username', (req, res) => {
     });
 });
 
-// POST route for adding a new post
+// POST endpoint for adding a new post
 app.post('/add-post', upload.single('image'), (req, res) => {
     const { description, username, profile } = req.body;
   
@@ -184,6 +184,57 @@ app.post('/add-post', upload.single('image'), (req, res) => {
         }
   
         return res.status(200).json({ message: 'Post added successfully', post: newPost });
+      });
+    });
+  });
+
+  //POST endpoint for adding a new user
+  app.post('/signup', upload.single('profileImage'), (req, res) => {
+    const { username, password, bio } = req.body;
+  
+    if (!username || !password || !req.file) {
+      return res.status(400).json({ message: 'Missing required fields or image.' });
+    }
+  
+    const usersPath = path.resolve(__dirname, '../my-app/public', 'users.json');
+  
+    fs.readFile(usersPath, 'utf8', (err, data) => {
+      if (err) {
+        console.error('Error reading users.json:', err);
+        return res.status(500).json({ message: 'Error reading users.json' });
+      }
+  
+      let users = [];
+      try {
+        users = JSON.parse(data);
+      } catch (parseErr) {
+        console.error('Error parsing users.json:', parseErr);
+      }
+  
+      /* 
+      Check for existing user. Don't want username to be the same as
+      another user
+      */
+      if (users.some(user => user.username === username)) {
+        return res.status(400).json({ message: 'Username already exists' });
+      }
+  //new user object that matches the users.json format
+      const newUser = {
+        username,
+        password,
+        profile: `/images/${req.file.filename}`,
+        bio
+      };
+  
+      users.push(newUser);
+  
+      fs.writeFile(usersPath, JSON.stringify(users, null, 2), (writeErr) => {
+        if (writeErr) {
+          console.error('Error writing to users.json:', writeErr);
+          return res.status(500).json({ message: 'Error saving user' });
+        }
+  
+        return res.status(200).json({ message: 'Signup successful', user: newUser });
       });
     });
   });
